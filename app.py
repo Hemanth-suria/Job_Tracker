@@ -3,7 +3,7 @@ app.py — Streamlit dashboard for the Job Tracker.
 Run with: streamlit run app.py
 """
 import streamlit as st
-from db import init_db, upsert_jobs, fetch_jobs, update_status, stats
+from db import init_db, upsert_jobs, fetch_jobs, update_status, stats, get_distinct_locations
 from fetcher import fetch_remote_jobs
 
 st.set_page_config(page_title="Job Tracker", page_icon="💼", layout="wide")
@@ -36,13 +36,16 @@ with st.sidebar:
         st.metric(status, count)
 
 # ---------------- Main: browse & filter ----------------
-col1, col2 = st.columns([3, 1])
+col1, col2, col3 = st.columns([3, 1, 1.5])
 with col1:
     keyword = st.text_input("Search saved jobs", placeholder="e.g. 'data engineer' or company name")
 with col2:
     status_filter = st.selectbox("Status", ["All", "New", "Interested", "Applied", "Rejected", "Offer"])
+with col3:
+    location_options = ["All"] + get_distinct_locations()
+    location_filter = st.selectbox("Country / Location", location_options)
 
-results = fetch_jobs(keyword=keyword, status=status_filter)
+results = fetch_jobs(keyword=keyword, status=status_filter, location=location_filter)
 st.write(f"**{len(results)} job(s) found**")
 
 for job in results:

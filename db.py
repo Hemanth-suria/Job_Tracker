@@ -54,7 +54,7 @@ def upsert_jobs(jobs: list[dict]) -> int:
     return added
 
 
-def fetch_jobs(keyword: str = "", status: str = "All") -> list[sqlite3.Row]:
+def fetch_jobs(keyword: str = "", status: str = "All", location: str = "All") -> list[sqlite3.Row]:
     query = "SELECT * FROM jobs WHERE 1=1"
     params = []
     if keyword:
@@ -64,9 +64,21 @@ def fetch_jobs(keyword: str = "", status: str = "All") -> list[sqlite3.Row]:
     if status != "All":
         query += " AND status = ?"
         params.append(status)
+    if location != "All":
+        query += " AND location = ?"
+        params.append(location)
     query += " ORDER BY published_at DESC"
     with get_conn() as conn:
         return conn.execute(query, params).fetchall()
+
+
+def get_distinct_locations() -> list[str]:
+    """Returns every distinct 'candidate required location' currently saved, for the country/location filter dropdown."""
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT DISTINCT location FROM jobs WHERE location IS NOT NULL AND location != '' ORDER BY location"
+        ).fetchall()
+    return [r["location"] for r in rows]
 
 
 def update_status(job_id: str, new_status: str):
