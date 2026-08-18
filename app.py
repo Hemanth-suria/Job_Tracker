@@ -9,6 +9,14 @@ from fetcher import fetch_remote_jobs
 st.set_page_config(page_title="Job Tracker", page_icon="💼", layout="wide")
 init_db()
 
+# Auto-seed initial jobs if database is empty (e.g. fresh cloud deployment)
+if sum(stats().values()) == 0:
+    try:
+        initial_jobs = fetch_remote_jobs(search="python")
+        upsert_jobs(initial_jobs)
+    except Exception:
+        pass
+
 st.title("💼 Job Listings Tracker")
 st.caption("Live remote job postings, saved locally, with application-status tracking.")
 

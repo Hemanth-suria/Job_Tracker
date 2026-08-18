@@ -23,13 +23,11 @@ def fetch_remote_jobs(search: str = "", category: str = "") -> list[dict]:
     Fetch jobs matching a search term and/or category.
     Categories include: software-dev, data, product, marketing, sales, customer-service, etc.
     """
-    params = {}
-    if search:
-        params["search"] = search
-    if category:
-        params["category"] = category
-
-    resp = requests.get(API_URL, params=params, timeout=15)
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept": "application/json",
+    }
+    resp = requests.get(API_URL, params=params, headers=headers, timeout=15)
     resp.raise_for_status()
     data = resp.json()
 
